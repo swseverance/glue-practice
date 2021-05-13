@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Client</title>
+    <script src="https://unpkg.com/@glue42/web@latest/dist/web.umd.js"></script>
+  </head>
+  <body>
+    <h1>Web Client</h1>
+    <p></p>
+  </body>
+  <script>
+    (async () => {
+      try {
+        const glue = await GlueWeb();
+        const currentWindow = glue.windows.my();
+        const context = await currentWindow.getContext();
+
+        const paragraph = document.querySelector('p');
+        paragraph.textContent = context.message;
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  </script>
+</html>
