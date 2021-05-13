@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Application</title>
+    <script src="https://unpkg.com/@glue42/web-platform@latest/dist/platform.web.umd.js"></script>
+    <script>
+      (async () => {
+        try {
+          const { glue } = await GlueWebPlatform();
+
+          const methodName = 'Main Application Method';
+          const methodHandler = ({ message }) => {
+            const paragraph = document.createElement('p');
+            paragraph.innerHTML = `<strong>Main Application</strong> Method invoked by <strong>${message}</strong>`;
+            document.body.appendChild(paragraph);
+          };
+
+          glue.interop.register(methodName, methodHandler);
+
+          const openWebClientButton = document.getElementById(
+            'open-web-client'
+          );
+
+          openWebClientButton.onclick = async () => {
+            // is the Web Client window already opened?
+            if (glue.windows.list().find((w) => w.name === 'Web Client'))
+              return;
+
+            try {
+              const name = 'Web Client';
+              const URL = 'http://localhost:9100';
+              await glue.windows.open(name, URL);
+            } catch (e) {
+              console.error(e);
+            }
+          };
+
+          const invokeWebClientMethodButton = document.getElementById(
+            'invoke-web-client-method'
+          );
+
+          invokeWebClientMethodButton.onclick = async () => {
+            const webClientMethod = glue.interop
+              .methods()
+              .find((method) => method.name === 'Web Client Method');
+
+            if (webClientMethod) {
+              glue.interop.invoke(webClientMethod, {
+                message: 'Main Application',
+              });
+            } else {
+              console.error('Web Client Method not found!');
+            }
+          };
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <h1>Main Application</h1>
+    <p>
+      This example demonstrates how a <strong>Main Application</strong> can call
+      an interop method defined within a <strong>Web Client</strong> and a
+      <strong>Web Client</strong> can call an interop method defined within the
+      <strong>Main Application</strong>.
+    </p>
+    <button id="open-web-client">Open Web Client</button>
+    <button id="invoke-web-client-method">Invoke Web Client Method</button>
+  </body>
+</html>
