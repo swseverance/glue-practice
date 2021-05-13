@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Client</title>
+    <script src="https://unpkg.com/@glue42/web@latest/dist/web.umd.js"></script>
+  </head>
+  <body>
+    <h1>Web Client</h1>
+    <button>Emit Value Into Web Client Stream</button>
+  </body>
+  <script>
+    (async () => {
+      try {
+        const glue = await GlueWeb();
+
+        window.webClientStream = await glue.interop.createStream(
+          'Web Client Stream'
+        );
+
+        const subscription = await glue.interop.subscribe(
+          'Main Application Stream'
+        );
+
+        subscription.onData((result) => {
+          const paragraph = document.createElement('p');
+          paragraph.innerHTML = `<strong>${result.data.message}</strong> stream emitted!`;
+          document.body.appendChild(paragraph);
+        });
+
+        const button = document.querySelector('button');
+
+        button.onclick = async () => {
+          webClientStream.push({ message: 'Web Client' });
+        };
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  </script>
+</html>

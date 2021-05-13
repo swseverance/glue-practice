@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Application</title>
+    <script src="https://unpkg.com/@glue42/web-platform@latest/dist/platform.web.umd.js"></script>
+    <script>
+      (async () => {
+        try {
+          const { glue } = await GlueWebPlatform();
+
+          // create a stream that the Web Client will subscribe to
+          window.mainApplicationStream = await glue.interop.createStream(
+            'Main Application Stream'
+          );
+
+          const openWebClientButton = document.getElementById(
+            'open-web-client'
+          );
+
+          openWebClientButton.onclick = async () => {
+            // is the Web Client window already opened?
+            if (glue.windows.list().find((w) => w.name === 'Web Client'))
+              return;
+
+            try {
+              const name = 'Web Client';
+              const URL = 'http://localhost:9100';
+              await glue.windows.open(name, URL);
+
+              // subscribe to the Web Client stream
+              const subscription = await glue.interop.subscribe(
+                'Web Client Stream'
+              );
+
+              subscription.onData((result) => {
+                const paragraph = document.createElement('p');
+                paragraph.innerHTML = `<strong>${result.data.message}</strong> stream emitted!`;
+                document.body.appendChild(paragraph);
+              });
+            } catch (e) {
+              console.error(e);
+            }
+          };
+
+          const emitValueToMainApplicationStreamButton = document.getElementById(
+            'invoke-web-client-method'
+          );
+
+          emitValueToMainApplicationStreamButton.onclick = async () => {
+            mainApplicationStream.push({ message: 'Main Application' });
+          };
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <h1>Main Application</h1>
+    <p>
+      This example demonstrates how a <strong>Main Application</strong> &amp;
+      <strong>Web Client</strong> can communicate via interop streams.
+    </p>
+    <button id="open-web-client">Open Web Client</button>
+    <button id="invoke-web-client-method">
+      Emit Value Into Main Application Stream
+    </button>
+  </body>
+</html>

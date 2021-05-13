@@ -1,0 +1,17 @@
+{
+  "name": "context",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:main-application": "http-server ./main-application -p 9000 -c-1",
+    "start:web-client": "http-server ./web-client -p 9100 -c-1",
+    "start": "concurrently \"npm run start:main-application\" \"npm run start:web-client\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^6.1.0",
+    "http-server": "^0.12.3"
+  }
+}
