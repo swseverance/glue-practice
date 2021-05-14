@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Application</title>
+    <script src="https://unpkg.com/@glue42/web-platform@latest/dist/platform.web.umd.js"></script>
+    <script>
+      (async () => {
+        try {
+          const { glue } = await GlueWebPlatform();
+
+          const openWebClientButton = document.getElementById(
+            'open-web-client'
+          );
+
+          openWebClientButton.onclick = async () => {
+            // is the Web Client window already opened?
+            if (glue.windows.list().find((w) => w.name === 'Web Client'))
+              return;
+
+            try {
+              const name = 'Web Client';
+              const URL = 'http://localhost:9100';
+              await glue.windows.open(name, URL);
+            } catch (e) {
+              console.error(e);
+            }
+          };
+
+          const updateSharedContextButton = document.getElementById(
+            'update-shared-context'
+          );
+
+          updateSharedContextButton.onclick = () => {
+            glue.contexts
+              .update('Shared Context', {
+                message: `Context updated by Main Application ${new Date()}`,
+              })
+              .catch(console.error);
+          };
+
+          glue.contexts.subscribe('Shared Context', ({ message }) => {
+            const paragraph = document.createElement('p');
+            paragraph.innerHTML = `<strong>${message}</strong>`;
+            document.body.appendChild(paragraph);
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <h1>Main Application</h1>
+    <p>
+      This example demonstrates how a <strong>Main Application</strong> &amp;
+      <strong>Web Client</strong> can communicate via interop streams.
+    </p>
+    <button id="open-web-client">Open Web Client</button>
+    <button id="update-shared-context">Update Shared Context</button>
+  </body>
+</html>
