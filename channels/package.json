@@ -1,0 +1,18 @@
+{
+  "name": "context",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:main-application": "http-server ./main-application -p 9000 -c-1",
+    "start:web-client-red": "http-server ./web-client-red -p 9100 -c-1",
+    "start:web-client-blue": "http-server ./web-client-blue -p 9200 -c-1",
+    "start": "concurrently \"npm run start:main-application\" \"npm run start:web-client-red\" \"npm run start:web-client-blue\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^6.1.0",
+    "http-server": "^0.12.3"
+  }
+}

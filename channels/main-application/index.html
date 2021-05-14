@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Application</title>
+    <script src="https://unpkg.com/@glue42/web-platform@latest/dist/platform.web.umd.js"></script>
+  </head>
+  <body>
+    <h1>Main Application</h1>
+    <p>
+      This example demonstrates how a <strong>Main Application</strong> &amp;
+      <strong>Web Client</strong> can communicate via channels.
+    </p>
+    <label>
+      Blue Channel
+      <input type="radio" value="blue" name="channel" checked />
+    </label>
+    <br />
+    <label>
+      Red Channel
+      <input type="radio" value="red" name="channel" />
+    </label>
+    <hr />
+    <button>Publish Message</button>
+  </body>
+  <script>
+    (async () => {
+      try {
+        const { glue } = await GlueWebPlatform({
+          channels: {
+            definitions: [
+              {
+                name: 'blue',
+                meta: {
+                  color: 'blue',
+                },
+              },
+              {
+                name: 'red',
+                meta: {
+                  color: 'red',
+                },
+              },
+            ],
+          },
+        });
+
+        if (
+          glue.windows.list().find((w) => w.name === 'Web Client (Red Channel)')
+        )
+          return;
+
+        try {
+          await glue.windows.open(
+            'Web Client (Red Channel)',
+            'http://localhost:9100'
+          );
+        } catch (e) {
+          console.error(e);
+        }
+
+        if (
+          glue.windows
+            .list()
+            .find((w) => w.name === 'Web Client (Blue Channel)')
+        )
+          return;
+
+        try {
+          await glue.windows.open(
+            'Web Client (Blue Channel)',
+            'http://localhost:9200'
+          );
+        } catch (e) {
+          console.error(e);
+        }
+
+        glue.channels.join('blue').catch(console.error);
+
+        const inputs = document.querySelectorAll('input');
+
+        for (const input of inputs) {
+          input.addEventListener('change', function (e) {
+            glue.channels.join(e.target.value);
+          });
+        }
+
+        const publishButton = document.querySelector('button');
+
+        publishButton.onclick = () => {
+          glue.channels
+            .publish({
+              message: `Hello From Main Application ${new Date()}`,
+            })
+            .catch(console.error);
+        };
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  </script>
+</html>
